@@ -1,0 +1,560 @@
+{
+  "Locale": {
+    "code": "fr",
+    "label": "Français",
+    "flag": "FR"
+  },
+  "Nav": {
+    "howItWorks": "Comment ça marche",
+    "features": "Avantages",
+    "presets": "Présets",
+    "pricing": "Tarifs",
+    "faq": "FAQ",
+    "signIn": "Se connecter",
+    "getStarted": "Commencer",
+    "openMenu": "Ouvrir le menu",
+    "language": "Langue",
+    "dashboard": "Dashboard"
+  },
+  "Footer": {
+    "tagline": "Un outil de fusion d'images qui ne ressemble pas à un outil de fusion. Importe deux photos, décris le résultat, reçois une image qui tient debout en plein écran.",
+    "newsletterLabel": "Un email par mois, quand quelque chose sort",
+    "newsletterPlaceholder": "toi@exemple.com",
+    "newsletterCta": "Rejoindre",
+    "newsletterSuccess": "Merci ! Tu recevras un email quand quelque chose sortira.",
+    "newsletterError": "Entre un email valide.",
+    "product": "Produit",
+    "popularPresets": "Présets populaires",
+    "company": "Société",
+    "legal": "Légal",
+    "howItWorks": "Comment ça marche",
+    "features": "Avantages",
+    "allTools": "Tous les présets",
+    "pricing": "Tarifs",
+    "workspace": "Espace de travail",
+    "about": "À propos",
+    "blog": "Blog",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "acceptableUse": "Usage acceptable",
+    "twoPeople": "Deux personnes, une photo",
+    "backgroundSwap": "Changer l'arrière-plan",
+    "productScene": "Produit en scène",
+    "virtualOutfit": "Essayage virtuel",
+    "restoreCombine": "Restaurer & combiner",
+    "copyright": "Tous droits réservés. Les visuels d'illustration sont des maquettes.",
+    "madeIn": "Conçu avec soin en France · propulsé par IA"
+  },
+  "Hero": {
+    "badge": "Fusion d'images par IA — propulsée par Fusionia",
+    "title1": "Fusionne tes photos en",
+    "titleHighlight": "une seule image",
+    "title2": "qui tient debout en plein écran.",
+    "subtitle": "Importe deux à quatre photos, décris le résultat en une phrase, reçois une seule image : éclairages accordés, ombres réelles, visages reconnaissables. Aucune compétence Photoshop requise.",
+    "ctaPrimary": "Lancer une fusion",
+    "ctaSecondary": "Voir les présets",
+    "mergesRun": "fusions déjà lancées",
+    "rating": "4,9/5 — utilisateurs",
+    "noAccount": "Sans compte pour configurer",
+    "previewTime": "Temps moyen",
+    "previewTimeValue": "~10 sec",
+    "previewFaces": "Visages préservés",
+    "previewFacesValue": "100 %",
+    "previewBadge": "Résultat fusionné",
+    "previewBadgeAI": "IA Fusionia",
+    "imageLabel1": "Image 1",
+    "imageLabel2": "Image 2"
+  },
+  "Combiner": {
+    "sectionLabel": "L'atelier de fusion",
+    "sectionTitle": "Configure ta fusion, lance-la quand tu es prêt.",
+    "sectionSubtitle": "Importe, ordonne, décris. Tout se règle sans compte — tu choisis ton plan avant la génération finale.",
+    "step1Title": "Tes images",
+    "step1Hint": "Dépose tes images ici, ou",
+    "step1Browse": "parcourir",
+    "step1Formats": "JPG, PNG ou WebP — 12 Mo max chacune. La première image fixe la lumière et l'angle de caméra du résultat.",
+    "step1Label": "Lumière",
+    "step2Title": "Choisis un préset",
+    "step2Hint": "Optionnel — il écrit l'essentiel du prompt pour toi.",
+    "step2NoPreset": "Aucun préset",
+    "step2Applied": "Préset « {name} » appliqué.",
+    "step3Title": "Décris le résultat",
+    "step3Hint": "Précis plutôt que poétique : qui va où, quelle lumière gagne, ce qui ne doit pas changer.",
+    "step3Placeholder": "Place la femme de l'image 1 à côté de l'homme de l'image 2, tous deux face caméra. Conserve les deux visages. Accordé la lumière douce du soir de l'image 2.",
+    "step3TryLabel": "Essaie :",
+    "step3Example": "Exemple {n}",
+    "ratioTitle": "Format de sortie",
+    "mergeButton": "Fusionner maintenant",
+    "merging": "Fusion en cours…",
+    "mergeHintMin": "Importe au moins 2 images pour activer la fusion.",
+    "mergeHintReady": "Prêt quand tu l'es — la génération prend ~10 s.",
+    "resultTitle": "Ton résultat",
+    "resultRedo": "Refaire",
+    "resultDownload": "Télécharger",
+    "resultLoading1": "Analyse des sources",
+    "resultLoading2": "Composition du cadre",
+    "resultLoading3": "Harmonisation lumière",
+    "resultLoadingHint": "On harmonise l'éclairage, les ombres et les visages.",
+    "resultEmptyTitle": "Ton résultat apparaîtra ici",
+    "resultEmptyBody": "Configure tes images et ta description à gauche — la fusion prend une dizaine de secondes.",
+    "resultDone": "Fusionnée",
+    "resultDownloadHint": "Image générée par Fusionia. Clique sur « Télécharger » pour l'enregistrer en PNG.",
+    "resultPrivacy": "Les images sources sont supprimées après la fusion. On ne les utilise jamais pour entraîner nos modèles.",
+    "errorMinImages": "Importe au moins deux images pour fusionner.",
+    "errorNoPrompt": "Décris le résultat attendu.",
+    "errorFormat": "{name} : format non supporté. JPG, PNG ou WebP.",
+    "errorSize": "{name} : 12 Mo max par image.",
+    "errorMax": "Maximum 4 images.",
+    "errorOverflow": "{count} image(s) ignorée(s) — limite atteinte.",
+    "errorGeneric": "La fusion a échoué. Vérifiez vos images et votre description, puis réessayez.",
+    "errorNoImage": "Le modèle n'a pas retourné d'image. Réessayez.",
+    "errorInvalid": "Image source invalide.",
+    "success": "Fusion terminée."
+  },
+  "Ratios": {
+    "auto": "Auto",
+    "1:1": "1:1",
+    "4:3": "4:3",
+    "3:4": "3:4",
+    "16:9": "16:9",
+    "9:16": "9:16"
+  },
+  "Examples": {
+    "1": "Place la femme de l'image 1 à côté de l'homme de l'image 2, tous deux face caméra. Conserve exactement les deux visages. Accordé la lumière douce du soir de l'image 2 et ajoute une ombre portée sous chacun.",
+    "2": "Garde le produit de l'image 1 et place-le sur la table en bois de l'image 2, éclairé par la lumière de fenêtre de la deuxième image. Conserve le texte de l'étiquette intact.",
+    "3": "Applique le style grain et la palette chaude de l'image 2 au portrait de l'image 1. Ne change pas la pose ni l'expression du sujet."
+  },
+  "Home": {
+    "ctaTitle": "Deux photos à devenir une seule, en une phrase.",
+    "ctaSubtitle": "Pas de compte requis pour configurer ta fusion. Tu choisis ton plan uniquement au moment de générer l'image finale.",
+    "ctaBadge": "Configure ta fusion, puis choisis ton plan",
+    "ctaPrimary": "Ouvrir l'atelier de fusion",
+    "ctaSecondary": "Voir les tarifs",
+    "ctaFree": "Sans carte bancaire pour tester",
+    "ctaFreeValue": "5 fusions offertes par mois",
+    "ctaCancel": "Annulation en un clic"
+  },
+  "Steps": {
+    "sectionLabel": "Trois étapes",
+    "sectionTitle": "Personne ne devrait avoir besoin d'un tutoriel de masquage pour faire une photo à partir de deux.",
+    "sectionSubtitle": "L'ancienne méthode : une heure d'outil plume, de contours progressifs et de peinture d'ombres. Ici, c'est le même travail, décrit en une phrase.",
+    "step1Title": "Importe tes images",
+    "step1Body": "Glisse deux à quatre photos — portraits, produits, décors. La première fixe la lumière et l'angle de caméra du résultat. Formats JPG, PNG, WebP jusqu'à 12 Mo chacune.",
+    "step2Title": "Décris ce que tu veux",
+    "step2Body": "Une seule phrase suffit. Choisis un préset pour écrire l'essentiel automatiquement, ou rédige la tienne : qui va où, quelle lumière gagne, ce qui ne doit pas changer.",
+    "step3Title": "Télécharge le résultat",
+    "step3Body": "Environ dix secondes plus tard, une seule image arrive : éclairages harmonisés, ombres cohérentes, visages préservés. Télécharge en PNG haute résolution."
+  },
+  "Presets": {
+    "sectionLabel": "Cas d'usage",
+    "sectionTitle": "Un outil, neuf métiers qu'il fait bien.",
+    "sectionSubtitle": "Chaque préset est une consigne rédigée à la main et affinée. Choisis celle qui correspond à ton besoin et le prompt est déjà écrit.",
+    "imageCount": "{count} images",
+    "credits": "{count} crédit",
+    "cta": "Essayer maintenant →",
+    "pageEyebrow": "Présets",
+    "pageTitle": "Neuf métiers, neuf présets",
+    "pageSubtitle": "Chaque préset est une consigne rédigée à la main. Choisis celle qui correspond à ton besoin et le prompt est déjà écrit — il ne te reste qu'à préciser ce qui compte.",
+    "pageCtaPrimary": "Ouvrir l'atelier de fusion",
+    "pageCtaSecondary": "Voir les tarifs",
+    "items": {
+      "two-people": {
+        "category": "Portraits & Personnes",
+        "title": "Deux personnes, une photo",
+        "description": "Recompose deux portraits dans un seul cadre — éclairages accordés, ombres partagées, profondeur de champ cohérente.",
+        "prompt": "Place la personne de l'image 1 à côté de celle de l'image 2, toutes deux face caméra. Conserve exactement les visages. Accordé la lumière douce du soir de l'image 2 et ajoute une ombre portée sous chacun."
+      },
+      "swap-bg": {
+        "category": "Scènes & Décors",
+        "title": "Changer l'arrière-plan",
+        "description": "L'image un est le sujet, l'image deux est le nouveau lieu. Bords, lumière parasite et reflets sont gérés automatiquement.",
+        "prompt": "Garde le sujet de l'image 1 intact et place-le dans le décor de l'image 2. Adapte la lumière, les reflets et la couleur ambiente pour qu'il semble y avoir toujours été."
+      },
+      "product-scene": {
+        "category": "Produit & E-commerce",
+        "title": "Produit en scène réelle",
+        "description": "Dépose un produit sur fond blanc dans un environnement stylé sans perdre le détail du packaging ni les logos.",
+        "prompt": "Place le produit de l'image 1 dans la scène de l'image 2, posé sur la surface visible. Conserve les étiquettes et le texte du packaging intacts. Ajoute une ombre de contact cohérente avec la lumière ambiante."
+      },
+      "borrow-style": {
+        "category": "Design & Marque",
+        "title": "Emprunter un style",
+        "description": "Utilise la seconde image comme référence visuelle — palette, grain, contraste — et laisse ton sujet intact.",
+        "prompt": "Applique le style visuel de l'image 2 (palette, grain, contraste, traitement de la lumière) à l'image 1 sans modifier le sujet ni la composition."
+      },
+      "try-outfit": {
+        "category": "Portraits & Personnes",
+        "title": "Essayer une tenue",
+        "description": "Ajuste un vêtement à la pose et au corps de la personne, en gardant la texture du tissu et l'alignement des motifs honnêtes.",
+        "prompt": "Habille la personne de l'image 1 avec le vêtement de l'image 2. Adapte la coupe, les plis et les ombres du tissu à la posture. Conserve le visage et les mains tels quels."
+      },
+      "restyle-room": {
+        "category": "Scènes & Décors",
+        "title": "Restyler une pièce",
+        "description": "Garde l'architecture de ton espace et importe le mobilier et l'ambiance d'une seconde photo.",
+        "prompt": "Restyle la pièce de l'image 1 avec le mobilier, la palette et l'ambiance de l'image 2. Conserve l'architecture, les fenêtres et les ouvertures existantes. Garde les proportions réalistes."
+      },
+      "logo-mockup": {
+        "category": "Design & Marque",
+        "title": "Logo sur maquette",
+        "description": "Applique un visuel plat sur un tissu, une courbe ou un pli pour qu'il ait l'air imprimé plutôt que collé.",
+        "prompt": "Applique le logo de l'image 2 sur la surface visible de l'image 1 (tissu, packaging, objet). Courbe l'artwork selon les plis et la perspective de la surface. Conserve les couleurs et le contraste du logo."
+      },
+      "restore-combine": {
+        "category": "Fun & Social",
+        "title": "Restaurer et combiner",
+        "description": "Répare les rayures et le délavage de photos scannées, puis réunit les sujets dans un seul cadre propre.",
+        "prompt": "Restaure la qualité des images sources (supprime les rayures, le bruit et la décoloration). Réunit ensuite les sujets dans un seul cadre cohérent, comme une photo d'archive nettoyée."
+      },
+      "holiday-card": {
+        "category": "Fun & Social",
+        "title": "Carte de vœux",
+        "description": "Fusionne des personnes de plusieurs photos dans un décor de saison chaleureux qui ressemble à une vraie photographie.",
+        "prompt": "Réunit les personnes des images sources dans un décor de saison chaleureux (lumières douces, ambiance festive). Conserve les visages reconnaissables. Évite l'aspect montage numérique."
+      }
+    }
+  },
+  "Features": {
+    "sectionLabel": "Pourquoi ça tient debout",
+    "sectionTitle1": "Le difficile, ce n'était jamais",
+    "sectionTitleHighlight": "mettre deux images côte à côte.",
+    "sectionSubtitle": "C'était de faire en sorte que la deuxième ait l'air d'avoir toujours été là. Voici les six choses sur lesquelles on passe notre temps d'ingénierie, par ordre de ce qui casse les autres outils.",
+    "updated": "Mis à jour pour la version 2.4",
+    "pageEyebrow": "Avantages",
+    "pageTitle": "Six choses qu'on passe notre temps à régler",
+    "pageSubtitle": "Le difficile, ce n'était jamais mettre deux images côte à côte. C'était faire en sorte que la deuxième ait l'air d'avoir toujours été là. Voici les six piliers techniques de Fusionia.",
+    "items": {
+      "faces": {
+        "title": "Les visages restent les visages",
+        "description": "On a entraîné le modèle à préserver l'identité des personnes, pas à en générer une nouvelle qui « ressemble à peu près ». Tes sujets restent reconnaissables, même après la fusion."
+      },
+      "shadows": {
+        "title": "Des ombres cohérentes avec la lumière",
+        "description": "Une fusion qui rate se voit aux ombres : elles pointent dans le mauvais sens, ou ne répondent pas à la source lumineuse. Ici elles sont calculées à partir de la lumière de l'image principale."
+      },
+      "labels": {
+        "title": "Étiquettes et logos survivent",
+        "description": "Pour l'e-commerce et le branding, le texte déformé ruine l'image. On garde les emballages, étiquettes et typographies nets, à la bonne perspective."
+      },
+      "ratio": {
+        "title": "Formats qui vont quelque part",
+        "description": "Carré, portrait, paysage, stories : tu choisis le ratio de sortie à la source, et l'image est composée pour ce cadre — pas recadrée après coup."
+      },
+      "fast": {
+        "title": "Assez rapide pour itérer",
+        "description": "Environ dix secondes par image, assez pour tester trois variantes d'éclairage avant de choisir. Pas le temps de prendre un café entre deux essais."
+      },
+      "private": {
+        "title": "Tes photos restent tiennes",
+        "description": "Les images sources sont supprimées peu après la fusion. On ne les utilise jamais pour entraîner nos modèles, et tu peux demander leur effacement à tout moment."
+      }
+    }
+  },
+  "Audience": {
+    "sectionLabel": "À qui ça sert",
+    "sectionTitle": "Quatre profils reviennent régulièrement.",
+    "sectionSubtitle": "Des métiers différents, le même problème sous-jacent : deux images qui doivent en devenir une, sans l'après-midi de masquage qui va avec.",
+    "items": {
+      "ecommerce": {
+        "title": "Équipes e-commerce",
+        "description": "Un packshot propre devient vingt visuels lifestyle sans réserver un studio ni un décor."
+      },
+      "families": {
+        "title": "Familles et amis",
+        "description": "Réunir tout le monde sur une seule photo, même quand personne n'était dans la même pièce — ni le même pays."
+      },
+      "designers": {
+        "title": "Designers et agences",
+        "description": "Mockups, visuels clés et pitchs livrés dans le temps qu'il fallait avant pour ouvrir le brief."
+      },
+      "estate": {
+        "title": "Immobilier et intérieurs",
+        "description": "Meubler une pièce vide à partir d'une photo de référence et garder l'architecture exactement telle qu'elle est."
+      }
+    }
+  },
+  "Comparison": {
+    "sectionLabel": "Comparaison honnête",
+    "sectionTitle": "Contre le faire à la main.",
+    "sectionSubtitle": "Photoshop gagne encore sur le contrôle, et on te dirait de l'utiliser pour une image héros qui doit être parfaite. Pour les quatre-vingt-dix autres, voici le compromis que la plupart veulent.",
+    "headerCriterion": "Critère",
+    "headerUs": "Fusionia",
+    "headerThem": "Édition manuelle",
+    "footerHint": "Le détail complet est dans notre documentation produit.",
+    "rows": {
+      "time": {
+        "label": "Temps pour une fusion finie",
+        "us": "Environ 10 secondes",
+        "them": "20–60 minutes",
+        "highlight": true
+      },
+      "skills": {
+        "label": "Compétences requises",
+        "us": "Écrire une phrase",
+        "them": "Masquage, contours, colorimétrie"
+      },
+      "lighting": {
+        "label": "Harmonise la lumière automatiquement",
+        "us": true,
+        "them": false
+      },
+      "shadows": {
+        "label": "Ajoute des ombres de contact",
+        "us": true,
+        "them": "À la main, image par image"
+      },
+      "faces": {
+        "label": "Conserve les visages reconnaissables",
+        "us": true,
+        "them": true
+      },
+      "labels": {
+        "label": "Préserve le texte des emballages",
+        "us": true,
+        "them": "Souvent déformé"
+      },
+      "cost": {
+        "label": "Coût par image",
+        "us": "1 crédit (dès 0,40 €)",
+        "them": "Ton taux horaire",
+        "highlight": true
+      },
+      "batch": {
+        "label": "Traiter tout un catalogue",
+        "us": true,
+        "them": "Actions, puis nettoyage"
+      }
+    }
+  },
+  "Testimonials": {
+    "sectionLabel": "Ce que ça a remplacé, en leurs mots",
+    "sectionTitle": "Ils ont arrêté d'ouvrir Photoshop pour ça.",
+    "items": {
+      "1": {
+        "quote": "On a remplacé notre flux de mockups Photoshop. Cinq minutes de prompt contre une heure de calque — pour un résultat au moins aussi convaincant.",
+        "author": "Camille R.",
+        "role": "Directrice artistique, studio indépendant"
+      },
+      "2": {
+        "quote": "On produit les visuels lifestyle de la fiche produit en une matinée. Avant, c'était une journée de shooting par référence.",
+        "author": "Hugo M.",
+        "role": "Responsable e-commerce, marque de cosmétique"
+      },
+      "3": {
+        "quote": "J'ai refait la photo de famille de mes grands-parents avec trois sources différentes. Personne n'a cru que c'était un montage.",
+        "author": "Léa D.",
+        "role": "Photographe portraitiste"
+      },
+      "4": {
+        "quote": "Pour les pitchs clients, on génère dix variantes d'ambiance en quelques minutes. Ça change la conversation avec le client.",
+        "author": "Sofiane B.",
+        "role": "Fondateur, agence de branding"
+      }
+    }
+  },
+  "Pricing": {
+    "sectionLabel": "Tarifs",
+    "sectionTitle": "Une fusion, un crédit. Facturé à l'année.",
+    "sectionSubtitle": "Pas de paliers compliqués, pas de crédits qui s'évaporent. Tu choisis un abonnement mensuel ou tu achètes un stock — les deux donnent accès à la même qualité d'image.",
+    "pageEyebrow": "Tarifs",
+    "pageTitle": "Choisis ton plan, change quand tu veux",
+    "pageSubtitle": "Pas de paliers compliqués, pas de crédits qui s'évaporent. Tu choisis un abonnement mensuel ou tu achètes un stock — les deux donnent accès à la même qualité d'image.",
+    "featuresInclude": "Tous les plans incluent : préservation des visages, harmonisation automatique de la lumière, ratios de sortie au choix, et suppression des images sources après génération.",
+    "badge": "Le plus choisi",
+    "perMonth": "/ mois",
+    "perFusion": "/ fusion",
+    "plans": {
+      "starter": {
+        "name": "Découverte",
+        "price": "0",
+        "description": "Pour tester l'outil sur un vrai projet, sans engagement.",
+        "features": [
+          "5 fusions par mois",
+          "Jusqu'à 4 images sources",
+          "Tous les présets débloqués",
+          "Ratio de sortie au choix",
+          "Filigrane discret sur les exports"
+        ],
+        "cta": "Commencer gratuitement"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "19",
+        "description": "Pour les créatifs et agences qui itèrent chaque jour.",
+        "features": [
+          "100 fusions par mois",
+          "Jusqu'à 4 images sources",
+          "Tous les présets débloqués",
+          "Sans filigrane, haute résolution",
+          "Historique et favoris",
+          "Support prioritaire"
+        ],
+        "cta": "Choisir Pro"
+      },
+      "credits": {
+        "name": "Crédits",
+        "price": "0,40",
+        "description": "Pas d'abonnement. Tu achètes un stock de fusions.",
+        "features": [
+          "À partir de 0,40 € par fusion",
+          "Sans engagement ni abonnement",
+          "Les crédits n'expirent pas",
+          "Idéal pour pics ponctuels",
+          "Même qualité que l'abonnement Pro"
+        ],
+        "cta": "Acheter des crédits"
+      }
+    }
+  },
+  "Faq": {
+    "sectionLabel": "Avant de s'inscrire",
+    "sectionTitle": "Les questions qu'on nous pose avant de signer.",
+    "directContact": "Ou demande-nous directement →",
+    "pageEyebrow": "FAQ",
+    "pageTitle": "Tout ce que tu veux savoir avant de t'inscrire",
+    "pageSubtitle": "Les questions qu'on nous pose le plus souvent. Si tu ne trouves pas ta réponse, écris-nous directement.",
+    "items": {
+      "1": {
+        "question": "Comment fusionner deux photos en une seule ?",
+        "answer": "Importe tes images sur la page d'accueil, choisis un préset ou écris une phrase décrivant le résultat attendu, puis clique sur « Fusionner ». Tu peux tout configurer sans compte ; l'image finale est générée dès que tu as un plan actif ou des crédits, et revient en une dizaine de secondes."
+      },
+      "2": {
+        "question": "Les visages ressembleront-ils aux personnes réelles ?",
+        "answer": "Oui. Le modèle est entraîné pour préserver l'identité des sujets, pas pour inventer un visage qui « ressemble à peu près ». Tu obtiens une fusion où chaque personne reste reconnaissable, même en gros plan."
+      },
+      "3": {
+        "question": "Quels formats et tailles d'image puis-je importer ?",
+        "answer": "JPG, PNG et WebP, jusqu'à 12 Mo par fichier. La première image détermine la lumière et l'angle de caméra du résultat, alors choisis-la en conséquence."
+      },
+      "4": {
+        "question": "Dois-je savoir utiliser Photoshop ?",
+        "answer": "Non. Si tu sais écrire une phrase, tu sais utiliser Fusionia. Les présets écrivent le gros du prompt pour toi ; il ne te reste qu'à préciser ce qui compte : qui va où, quelle lumière gagne, ce qui ne doit pas changer."
+      },
+      "5": {
+        "question": "Puis-je utiliser les résultats commercialement ?",
+        "answer": "Oui. Les images générées t'appartiennent et peuvent être utilisées pour des supports commerciaux, à condition que les images sources que tu importes soient les tiennes ou que tu en disposes les droits."
+      },
+      "6": {
+        "question": "Que deviennent mes imports ?",
+        "answer": "Les images sources sont supprimées peu après la fusion. Elles ne servent jamais à entraîner nos modèles, et tu peux demander leur effacement complet à tout moment."
+      },
+      "7": {
+        "question": "Combien coûte une fusion ?",
+        "answer": "Une fusion = un crédit. En abonnement Pro, 100 crédits par mois sont inclus. Sans abonnement, des crédits à l'unité sont disponibles à partir de 0,40 € la fusion."
+      },
+      "8": {
+        "question": "Puis-je annuler quand je veux ?",
+        "answer": "Oui, sans frais ni préavis. L'abonnement reste actif jusqu'à la fin de la période payée, puis s'arrête. Les crédits déjà achetés restent disponibles."
+      }
+    }
+  },
+  "HowItWorks": {
+    "eyebrow": "Comment ça marche",
+    "title": "Deux photos à une seule, en une phrase.",
+    "subtitle": "Aucune compétence Photoshop requise. Importe, décris, télécharge. Voici le flux complet, étape par étape.",
+    "step1Label": "Étape 1",
+    "step1Title": "Importe tes images",
+    "step1Body": "Glisse deux à quatre photos — portraits, produits, décors. La première image fixe la lumière et l'angle de caméra du résultat. Formats JPG, PNG, WebP jusqu'à 12 Mo chacune. Tu peux réordonner les images une fois importées, et la première garde toujours le rôle de référence lumière.",
+    "step2Label": "Étape 2",
+    "step2Title": "Choisis un préset ou écris ta consigne",
+    "step2Body": "Un préset écrit l'essentiel du prompt pour toi. Tu peux aussi rédiger ta propre consigne : qui va où, quelle lumière gagne, ce qui ne doit pas changer. Précis plutôt que poétique. Trois exemples sont disponibles dans l'atelier pour t'inspirer.",
+    "step3Label": "Étape 3",
+    "step3Title": "Lance la fusion",
+    "step3Body": "Clique sur « Fusionner ». Environ dix secondes plus tard, une seule image arrive : éclairages harmonisés, ombres cohérentes, visages préservés. Tu peux la télécharger en PNG haute résolution, ou la refaire pour itérer.",
+    "step4Label": "Étape 4",
+    "step4Title": "Télécharge, itère, recommence",
+    "step4Body": "Le résultat est à toi, sans filigrane en abonnement Pro. Tu peux générer trois variantes d'éclairage en une minute pour comparer. Les images sources sont supprimées après la fusion — on ne les utilise jamais pour entraîner nos modèles.",
+    "ctaTitle": "Prêt à essayer ?",
+    "ctaBody": "Configure ta fusion maintenant. Tu choisis ton plan uniquement au moment de générer l'image finale.",
+    "ctaPrimary": "Ouvrir l'atelier de fusion",
+    "ctaSecondary": "Voir les tarifs"
+  },
+  "Metadata": {
+    "title": "Fusionia — Fusionnez vos images en une seule photo réaliste",
+    "description": "Importez deux à quatre images, décrivez le résultat attendu, obtenez une seule photo réaliste en quelques secondes. Éclairages cohérents, ombres réelles, visages reconnaissables.",
+    "howItWorksTitle": "Comment ça marche — Fusionia",
+    "howItWorksDesc": "Le flux complet en quatre étapes : importer, décrire, fusionner, télécharger.",
+    "featuresTitle": "Avantages — Fusionia",
+    "featuresDesc": "Six piliers techniques : visages préservés, ombres cohérentes, étiquettes intactes, ratios adaptés, vitesse, confidentialité.",
+    "presetsTitle": "Présets — Fusionia",
+    "presetsDesc": "Neuf présets couvrant portraits, scènes, produit, design, fun & social.",
+    "pricingTitle": "Tarifs — Fusionia",
+    "pricingDesc": "Découverte gratuit, Pro 19 €/mois, ou crédits à l'unité dès 0,40 €.",
+    "faqTitle": "FAQ — Fusionia",
+    "faqDesc": "Tout ce que tu veux savoir avant de t'inscrire à Fusionia."
+  },
+  "Common": {
+    "loading": "Chargement…",
+    "backHome": "Retour à l'accueil"
+  },
+  "Auth": {
+    "signinTitle": "Connexion",
+    "signinSubtitle": "Accède à ton atelier de fusion et à tes crédits.",
+    "signupTitle": "Créer un compte",
+    "signupSubtitle": "5 crédits offerts à l’inscription. Aucune carte requise.",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Ton nom",
+    "emailLabel": "Email",
+    "passwordLabel": "Mot de passe",
+    "passwordHint": "Au moins 6 caractères.",
+    "signinButton": "Se connecter",
+    "signupButton": "Créer mon compte",
+    "loading": "Chargement…",
+    "haveAccount": "Déjà un compte ?",
+    "noAccount": "Pas encore de compte ?",
+    "signinLink": "Se connecter",
+    "signupLink": "S’inscrire",
+    "bonusOffer": "5 crédits offerts à l’inscription",
+    "signinSuccess": "Connexion réussie.",
+    "signupError": "Inscription échouée.",
+    "signinError": "Email ou mot de passe incorrect.",
+    "genericError": "Une erreur est survenue. Réessaie.",
+    "welcomeBonus": "Bienvenue ! 5 crédits offerts.",
+    "signinMetaTitle": "Connexion — Fusionia",
+    "signinMetaDesc": "Connecte-toi à ton atelier de fusion d’images.",
+    "signupMetaTitle": "Inscription — Fusionia",
+    "signupMetaDesc": "Crée ton compte et obtiens 5 crédits offerts."
+  },
+  "Dashboard": {
+    "metaTitle": "Dashboard — Fusionia",
+    "metaDesc": "Tes crédits, ton historique et tes fusions.",
+    "welcomeEyebrow": "Espace de travail",
+    "welcomeTitle": "Bonjour, {name}",
+    "welcomeSubtitle": "Voici ton atelier de fusion d’images.",
+    "newMerge": "Nouvelle fusion",
+    "signOut": "Déconnexion",
+    "creditsUnit": "crédits",
+    "balance": "Solde",
+    "planFree": "Gratuit",
+    "statCredits": "Crédits",
+    "statMerges": "Fusions",
+    "statPlan": "Plan",
+    "statMember": "Membre depuis",
+    "buyTitle": "Recharger des crédits",
+    "buySubtitle": "Un crédit = une fusion. Les crédits n’expirent pas — tu peux les utiliser quand tu veux.",
+    "buyButton": "Acheter",
+    "buyError": "Achat échoué. Réessaie.",
+    "buySuccess": "{count} crédits ajoutés à ton compte.",
+    "buyNote": "Démo : aucun paiement réel n’est traité. Les crédits sont ajoutés immédiatement.",
+    "bestValue": "Meilleur prix",
+    "packStarter": "Pack découverte",
+    "packMedium": "Pack standard",
+    "packLarge": "Pack pro",
+    "transactionsTitle": "Historique des crédits",
+    "transactionsEmpty": "Aucune transaction pour l’instant.",
+    "mergesTitle": "Fusions récentes",
+    "mergesEmpty": "Aucune fusion pour l’instant.",
+    "mergesEmptyHint": "Lance ta première fusion depuis l’atelier.",
+    "loadError": "Impossible de charger tes données. Réessaie.",
+    "reasons": {
+      "welcome_bonus": "Bonus de bienvenue",
+      "merge": "Fusion d’images",
+      "purchase_starter": "Achat — Pack découverte",
+      "purchase_medium": "Achat — Pack standard",
+      "purchase_large": "Achat — Pack pro",
+      "purchase_custom": "Achat de crédits"
+    }
+  }
+}

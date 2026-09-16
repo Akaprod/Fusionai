@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid()) @db.VarChar(30)
+  email         String    @unique @db.VarChar(255)
+  name          String?   @db.VarChar(255)
+  passwordHash  String?   @db.Text
+  image         String?   @db.Text
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  credits       Int       @default(5)
+  plan          String    @default("free") @db.VarChar(50)
+  role          String    @default("user") @db.VarChar(50)
+
+  accounts      Account[]
+  sessions      Session[]
+  merges        Merge[]
+  transactions  CreditTransaction[]
+
+  @@index([email])
+}
+
+model Account {
+  id                String  @id @default(cuid()) @db.VarChar(30)
+  userId            String  @db.VarChar(30)
+  type              String  @db.VarChar(50)
+  provider          String  @db.VarChar(50)
+  providerAccountId String  @db.VarChar(255)
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String? @db.VarChar(50)
+  scope             String? @db.Text
+  id_token          String? @db.Text
+  session_state     String? @db.VarChar(255)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  sessionToken String   @unique @db.VarChar(255)
+  userId       String   @db.VarChar(30)
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String  @db.VarChar(255)
+  token      String  @db.VarChar(255)
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Merge {
+  id          String   @id @default(cuid()) @db.VarChar(30)
+  userId      String   @db.VarChar(30)
+  prompt      String   @db.Text
+  resultUrl   String?  @db.LongText
+  status      String   @default("completed") @db.VarChar(50)
+  creditsUsed Int      @default(1)
+  size        String?  @db.VarChar(50)
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model CreditTransaction {
+  id        String   @id @default(cuid()) @db.VarChar(30)
+  userId    String   @db.VarChar(30)
+  amount    Int
+  reason    String   @db.VarChar(100)
+  balance   Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
