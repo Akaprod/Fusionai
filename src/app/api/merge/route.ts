@@ -3,9 +3,13 @@ import ZAI from "z-ai-web-dev-sdk";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { ensureZaiConfig } from "@/lib/zai-config";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
+
+// Ensure the Z.AI config file exists before any request
+ensureZaiConfig();
 
 interface MergeBody {
   prompt: string;
