@@ -83,14 +83,59 @@ export function CombinerTool() {
         toAdd.map(
           (file) =>
             new Promise<ImageItem>((resolve) => {
+              // Convert to PNG via canvas for better preservation
               const reader = new FileReader();
               reader.onload = () => {
+                const img = new window.Image();
+                img.onload = () => {
+                  // Downscale large images to max 1024px (API limit)
+                  const maxDim = 1024;
+                  let { width, height } = img;
+                  if (width > maxDim || height > maxDim) {
+                    const ratio = Math.min(maxDim / width, maxDim / height);
+                    width = Math.round(width * ratio);
+                    height = Math.round(height * ratio);
+                  }
+                  const canvas = document.createElement("canvas");
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext("2d");
+                  if (!ctx) {
+                    // Fallback to original
+                    resolve({
+                      id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                      name: file.name,
+                      url: reader.result as string,
+                      size: file.size,
+                    });
+                    return;
+                  }
+                  ctx.drawImage(img, 0, 0, width, height);
+                  // PNG preserves transparency and is lossless — better for the edit API
+                  const pngDataUrl = canvas.toDataURL("image/png");
+                  resolve({
+                    id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                    name: file.name,
+                    url: pngDataUrl,
+                    size: file.size,
+                  });
+                };
+                img.onerror = () => {
+                  // Fallback to original if canvas fails
+                  resolve({
+                    id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                    name: file.name,
+                    url: reader.result as string,
+                    size: file.size,
+                  });
+                };
+                img.src = reader.result as string;
+              };
+              reader.onerror = () => {
                 resolve({
-                  id: `${file.name}-${Date.now()}-${Math.random()
-                    .toString(36)
-                    .slice(2, 7)}`,
+                  id: `${file.name}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
                   name: file.name,
-                  url: reader.result as string,
+                  url: "",
                   size: file.size,
                 });
               };
