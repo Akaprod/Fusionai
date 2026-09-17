@@ -83,3 +83,4 @@ server.log
 /vlm_*.json
 /paged_image_*.png
 .git-credentials
+tool-results/
