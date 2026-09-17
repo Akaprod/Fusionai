@@ -161,6 +161,7 @@ export async function POST(req: NextRequest) {
     // - Pass ALL valid images (the API supports multiple reference images)
     // - The first image is treated as the primary subject/lighting reference
     // - Additional images provide context (background, style, garment, etc.)
+    ensureZaiConfig(); // Re-create config file at runtime (in case it was deleted)
     const zai = await ZAI.create();
     const apiImages = validImages.map((url) => ({ url }));
 
