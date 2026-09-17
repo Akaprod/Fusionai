@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Sparkles, Globe, Check, ChevronDown, LayoutDashboard, LogIn, Coins } from "lucide-react";
+import { Menu, X, Sparkles, Globe, Check, ChevronDown, LayoutDashboard, LogIn, Coins, Shield } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
