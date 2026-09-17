@@ -14,7 +14,8 @@
     "getStarted": "Empezar",
     "openMenu": "Abrir el menú",
     "language": "Idioma",
-    "dashboard": "Panel"
+    "dashboard": "Panel",
+    "administration": "Administración"
   },
   "Footer": {
     "tagline": "Una herramienta para fusionar imágenes que no parece una herramienta para fusionar imágenes. Sube dos fotos, describe el resultado, recibe una imagen que se sostiene en pantalla completa.",

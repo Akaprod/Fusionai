@@ -75,6 +75,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as { credits?: number }).credits =
           token.credits as number;
         (session.user as { plan?: string }).plan = token.plan as string;
+        (session.user as { role?: string }).role = token.role as string;
       }
       return session;
     },

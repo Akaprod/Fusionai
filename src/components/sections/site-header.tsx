@@ -164,6 +164,17 @@ export function SiteHeader() {
 
             {status === "authenticated" && session?.user ? (
               <>
+                {/* Admin button — only shown to admins */}
+                {(session.user as { role?: string }).role === "admin" && (
+                  <Link
+                    href={`/${locale}/admin`}
+                    className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-primary/40 bg-primary/15 text-primary text-sm font-medium hover:border-primary hover:bg-primary/20 transition-colors"
+                    title={t("administration")}
+                  >
+                    <Shield className="size-4" />
+                    <span>{t("administration")}</span>
+                  </Link>
+                )}
                 <Link
                   href={`/${locale}/dashboard`}
                   className="hidden sm:inline-flex items-center gap-1.5 h-9 px-3 rounded-lg border border-primary/30 bg-primary/10 text-primary text-sm font-medium hover:border-primary/50 transition-colors"
@@ -234,6 +245,19 @@ export function SiteHeader() {
                   {l.label}
                 </Link>
               ))}
+              {/* Admin link in mobile menu — only for admins */}
+              {status === "authenticated" &&
+                session?.user &&
+                (session.user as { role?: string }).role === "admin" && (
+                  <Link
+                    href={`/${locale}/admin`}
+                    onClick={() => setMobileOpen(false)}
+                    className="mt-2 px-3 py-2.5 rounded-lg text-sm bg-primary/15 border border-primary/40 text-primary hover:bg-primary/20 transition-colors flex items-center gap-2"
+                  >
+                    <Shield className="size-4" />
+                    {t("administration")}
+                  </Link>
+                )}
               <div className="grid grid-cols-2 gap-2 mt-3">
                 <Button variant="outline" asChild>
                   <Link href={`/${locale}`} onClick={() => setMobileOpen(false)}>

@@ -14,7 +14,8 @@
     "getStarted": "Get started",
     "openMenu": "Open menu",
     "language": "Language",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "administration": "Admin"
   },
   "Footer": {
     "tagline": "An image fusion tool that doesn't feel like an image fusion tool. Drop in two photos, describe the result, get back one image that holds up full-screen.",

@@ -14,7 +14,8 @@
     "getStarted": "Commencer",
     "openMenu": "Ouvrir le menu",
     "language": "Langue",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "administration": "Administration"
   },
   "Footer": {
     "tagline": "Un outil de fusion d'images qui ne ressemble pas à un outil de fusion. Importe deux photos, décris le résultat, reçois une image qui tient debout en plein écran.",
