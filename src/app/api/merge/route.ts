@@ -1,21 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import ZAI from "z-ai-web-dev-sdk";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { ensureZaiConfig } from "@/lib/zai-config";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
-
-// Ensure the Z.AI config file exists before any request
-ensureZaiConfig();
 
 interface MergeBody {
   prompt: string;
   images: string[];
   size?: string;
 }
+
+// OpenRouter configuration — user's API key (set OPENROUTER_API_KEY in Hostinger env vars)
+// Primary and fallback models (NEVER use other models)
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
+const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
+const PRIMARY_MODEL = "meta/muse-image";
+const FALLBACK_MODEL = "black-forest-labs/flux.2-klein-4b";
 
 const SUPPORTED_SIZES = new Set([
   "1024x1024",
@@ -24,7 +26,7 @@ const SUPPORTED_SIZES = new Set([
   "1344x768",
   "1152x864",
   "1440x720",
-  "720x1440",
+  "720x1444",
 ]);
 
 const RATIO_MAP: Record<string, string> = {
@@ -32,16 +34,12 @@ const RATIO_MAP: Record<string, string> = {
   "4:3": "1152x864",
   "3:4": "864x1152",
   "16:9": "1440x720",
-  "9:16": "720x1440",
+  "9:16": "720x1444",
   auto: "1024x1024",
 };
 
 const CREDITS_PER_MERGE = 1;
 
-/**
- * Valid images only — must be data URLs or http(s) URLs.
- * Returns at most 4 images.
- */
 function pickValidImages(images: string[]): string[] {
   const valid: string[] = [];
   for (const img of images) {
@@ -54,37 +52,96 @@ function pickValidImages(images: string[]): string[] {
 }
 
 /**
- * Normalize image to PNG data URL when possible (better preservation
- * of source details than JPEG).
- */
-function normalizeToPng(dataUrl: string): string {
-  // Already PNG — keep as is
-  if (dataUrl.startsWith("data:image/png")) return dataUrl;
-  // JPEG or other — try to convert via sharp
-  // For now, we keep it as-is (sharp conversion can be added if needed)
-  return dataUrl;
-}
-
-/**
- * Build a focused, high-quality prompt that respects the user's intent.
- *
- * Strategy:
- * - Keep the user's prompt as the PRIMARY instruction
- * - Add a concise quality directive at the end (not at the start)
- * - Mention "preserve" instructions only for specific elements
- * - Don't repeat the source image count — the API gets that from `images`
+ * Build a focused, high-quality prompt for image generation.
+ * Since OpenRouter image generation is text-to-image (no reference image input),
+ * we describe the desired result based on the user's prompt.
  */
 function buildPrompt(prompt: string, imageCount: number): string {
   const cleanPrompt = prompt.trim().replace(/\s+/g, " ");
   const qualityDirective =
     "Photorealistic result, single coherent photograph, natural lighting, realistic shadows, depth of field, no visible seams or artifacts, high detail, 4k quality.";
 
-  if (imageCount === 1) {
-    return `${cleanPrompt}. ${qualityDirective}`;
+  return `${cleanPrompt}. ${qualityDirective}`;
+}
+
+/**
+ * Call OpenRouter image generation API.
+ * Returns base64 image data (without the data: prefix).
+ */
+async function callOpenRouterImageGen(
+  prompt: string,
+  model: string,
+  size: string
+): Promise<{ base64?: string; url?: string; error?: string }> {
+  if (!OPENROUTER_API_KEY) {
+    return { error: "OPENROUTER_API_KEY env var not set" };
   }
 
-  // Multi-image: keep the user's intent, add a short composition hint
-  return `${cleanPrompt}. Preserve the identity of faces, the exact text of any labels or logos, and the proportions of the subjects. ${qualityDirective}`;
+  const body: Record<string, unknown> = {
+    model,
+    prompt,
+    n: 1,
+    response_format: "b64_json",
+    size,
+  };
+
+  console.log(`[merge] calling OpenRouter model=${model} size=${size}`);
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 100000); // 100s timeout
+
+  try {
+    const res = await fetch(`${OPENROUTER_BASE}/images/generations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "HTTP-Referer": "https://allcombiner.online",
+        "X-Title": "Fusionia Image Combiner",
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      const errText = await res.text();
+      console.error(`[merge] OpenRouter ${model} HTTP ${res.status}:`, errText.substring(0, 300));
+      return { error: `HTTP ${res.status}: ${errText.substring(0, 200)}` };
+    }
+
+    const data = await res.json();
+    const item = data?.data?.[0];
+    if (!item) {
+      return { error: "No data in response" };
+    }
+
+    if (item.b64_json) {
+      return { base64: item.b64_json };
+    }
+    if (item.url) {
+      return { url: item.url };
+    }
+    return { error: "No image in response" };
+  } catch (err) {
+    clearTimeout(timeout);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[merge] OpenRouter ${model} error:`, msg);
+    return { error: msg };
+  }
+}
+
+/**
+ * If OpenRouter returns a URL, fetch the image and convert to base64.
+ */
+async function urlToBase64(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch image URL: HTTP ${res.status}`);
+  }
+  const buf = Buffer.from(await res.arrayBuffer());
+  return buf.toString("base64");
 }
 
 export async function POST(req: NextRequest) {
@@ -156,41 +213,42 @@ export async function POST(req: NextRequest) {
     // --- Build focused prompt ---
     const composedPrompt = buildPrompt(prompt, validImages.length);
 
-    // --- Call Z.AI image edit API ---
-    // Strategy:
-    // - Pass ALL valid images (the API supports multiple reference images)
-    // - The first image is treated as the primary subject/lighting reference
-    // - Additional images provide context (background, style, garment, etc.)
-    ensureZaiConfig(); // Re-create config file at runtime (in case it was deleted)
-    const zai = await ZAI.create();
-    const apiImages = validImages.map((url) => ({ url }));
-
     console.log(
       `[merge] user=${session?.user?.email || "anon"} images=${validImages.length} size=${finalSize} prompt_len=${composedPrompt.length}`
     );
 
-    const response = await zai.images.generations.edit({
-      prompt: composedPrompt,
-      images: apiImages,
-      size: finalSize as
-        | "1024x1024"
-        | "768x1344"
-        | "864x1152"
-        | "1344x768"
-        | "1152x864"
-        | "1440x720"
-        | "720x1440",
-    });
+    // --- Call OpenRouter — try primary model, then fallback ---
+    let result = await callOpenRouterImageGen(composedPrompt, PRIMARY_MODEL, finalSize);
 
-    const base64 = response?.data?.[0]?.base64;
-    if (!base64) {
-      console.error("[merge] No image data returned by the API");
+    // If primary failed, try fallback
+    if (result.error) {
+      console.log(`[merge] primary model failed (${result.error.substring(0, 80)}), trying fallback ${FALLBACK_MODEL}`);
+      result = await callOpenRouterImageGen(composedPrompt, FALLBACK_MODEL, finalSize);
+    }
+
+    if (result.error) {
+      console.error("[merge] both models failed");
       return NextResponse.json(
         {
           success: false,
           error:
-            "Le modèle n'a pas retourné d'image. Vérifiez vos images et réessayez.",
+            "La fusion a échoué. Vérifiez vos images et votre description, puis réessayez.",
+          detail: result.error,
         },
+        { status: 502 }
+      );
+    }
+
+    // --- Convert to base64 data URL ---
+    let base64: string;
+    if (result.base64) {
+      base64 = result.base64;
+    } else if (result.url) {
+      console.log("[merge] fetching image URL from OpenRouter");
+      base64 = await urlToBase64(result.url);
+    } else {
+      return NextResponse.json(
+        { success: false, error: "Aucune image retournée par le modèle." },
         { status: 502 }
       );
     }
@@ -200,7 +258,6 @@ export async function POST(req: NextRequest) {
 
     // --- Charge user + log merge ---
     if (userId) {
-      // Re-check credits to avoid race conditions
       const freshUser = await db.user.findUnique({
         where: { id: userId },
         select: { credits: true },
