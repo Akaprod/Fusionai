@@ -1,14 +1,79 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Sparkles, ArrowRight } from "lucide-react";
+import { Check, Sparkles, ArrowRight, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { PLAN_IDS } from "@/lib/content";
 
+type SiteSettings = {
+  "pricing.starter_price": string;
+  "pricing.pro_price": string;
+  "pricing.credits_pack_price": string;
+  "pricing.pack_starter_credits": string;
+  "pricing.pack_medium_credits": string;
+  "pricing.pack_large_credits": string;
+  "credits.welcome_bonus": string;
+  "credits.cost_per_merge": string;
+};
+
+const DEFAULT_PRICING: SiteSettings = {
+  "pricing.starter_price": "0",
+  "pricing.pro_price": "19",
+  "pricing.credits_pack_price": "0.40",
+  "pricing.pack_starter_credits": "20",
+  "pricing.pack_medium_credits": "100",
+  "pricing.pack_large_credits": "500",
+  "credits.welcome_bonus": "5",
+  "credits.cost_per_merge": "1",
+};
+
 export function PricingSection() {
   const t = useTranslations("Pricing");
   const locale = useLocale();
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_PRICING);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setSettings({ ...DEFAULT_PRICING, ...data.settings });
+        }
+      })
+      .catch(() => {
+        // Keep defaults on error
+      })
+      .finally(() => setLoaded(true));
+  }, []);
+
+  // Format price according to locale
+  const fmt = (n: number, decimals = 0) => {
+    const localeStr = locale === "fr" ? "fr-FR" : locale === "es" ? "es-ES" : "en-US";
+    return n.toLocaleString(localeStr, {
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+  };
+
+  // Build dynamic plan prices from settings
+  const planPrices: Record<string, { value: string; unit: string }> = {
+    starter: {
+      value: fmt(parseFloat(settings["pricing.starter_price"]) || 0),
+      unit: t("perMonth"),
+    },
+    pro: {
+      value: fmt(parseFloat(settings["pricing.pro_price"]) || 0),
+      unit: t("perMonth"),
+    },
+    credits: {
+      value: fmt(parseFloat(settings["pricing.credits_pack_price"]) || 0.4, 2),
+      unit: t("perFusion"),
+    },
+  };
+
   return (
     <section
       id="tarifs"
@@ -37,6 +102,7 @@ export function PricingSection() {
           {PLAN_IDS.map((planId, idx) => {
             const isHighlight = planId === "pro";
             const features = t.raw(`plans.${planId}.features`) as string[];
+            const price = planPrices[planId];
             return (
               <motion.div
                 key={planId}
@@ -66,12 +132,16 @@ export function PricingSection() {
                 </div>
 
                 <div className="mb-6 flex items-baseline gap-1">
-                  <span className="font-display text-5xl font-medium tabular-nums">
-                    {t(`plans.${planId}.price`)} €
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {planId === "credits" ? t("perFusion") : t("perMonth")}
-                  </span>
+                  {!loaded ? (
+                    <Loader2 className="size-7 animate-spin text-muted-foreground" />
+                  ) : (
+                    <>
+                      <span className="font-display text-5xl font-medium tabular-nums">
+                        {price.value} €
+                      </span>
+                      <span className="text-sm text-muted-foreground">{price.unit}</span>
+                    </>
+                  )}
                 </div>
 
                 <ul className="space-y-2.5 mb-7 flex-1">

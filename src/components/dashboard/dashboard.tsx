@@ -54,10 +54,28 @@ type UserData = {
 };
 
 const CREDIT_PACKS = [
-  { id: "starter", credits: 20, labelKey: "packStarter" },
-  { id: "medium", credits: 100, labelKey: "packMedium" },
-  { id: "large", credits: 500, labelKey: "packLarge" },
+  { id: "starter", settingKey: "pricing.pack_starter_credits", labelKey: "packStarter" },
+  { id: "medium", settingKey: "pricing.pack_medium_credits", labelKey: "packMedium" },
+  { id: "large", settingKey: "pricing.pack_large_credits", labelKey: "packLarge" },
 ] as const;
+
+type SiteSettings = {
+  "pricing.pack_starter_credits": string;
+  "pricing.pack_medium_credits": string;
+  "pricing.pack_large_credits": string;
+  "pricing.credits_pack_price": string;
+  "credits.cost_per_merge": string;
+  "credits.welcome_bonus": string;
+};
+
+const DEFAULT_SETTINGS: SiteSettings = {
+  "pricing.pack_starter_credits": "20",
+  "pricing.pack_medium_credits": "100",
+  "pricing.pack_large_credits": "500",
+  "pricing.credits_pack_price": "0.40",
+  "credits.cost_per_merge": "1",
+  "credits.welcome_bonus": "5",
+};
 
 export function Dashboard() {
   const t = useTranslations("Dashboard");
@@ -66,8 +84,21 @@ export function Dashboard() {
   const { data: session, status } = useSession();
 
   const [data, setData] = useState<UserData | null>(null);
+  const [settings, setSettings] = useState<SiteSettings>(DEFAULT_SETTINGS);
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState<string | null>(null);
+
+  // Fetch site settings (pricing, credits) once
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.settings) {
+          setSettings({ ...DEFAULT_SETTINGS, ...d.settings });
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -262,7 +293,15 @@ export function Dashboard() {
               {t("buySubtitle")}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {CREDIT_PACKS.map((pack) => (
+              {CREDIT_PACKS.map((pack) => {
+                const credits = parseInt(settings[pack.settingKey], 10) || 0;
+                const pricePerCredit = parseFloat(settings["pricing.credits_pack_price"]) || 0.4;
+                const totalPrice = credits * pricePerCredit;
+                const priceStr = totalPrice.toLocaleString(
+                  locale === "fr" || locale === "es" ? "fr-FR" : "en-US",
+                  { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                );
+                return (
                 <div
                   key={pack.id}
                   className="relative rounded-2xl border border-border bg-card/40 p-5 hover:border-primary/40 hover:bg-primary/[0.04] transition-all"
@@ -275,19 +314,16 @@ export function Dashboard() {
                   )}
                   <div className="text-center">
                     <div className="font-display text-4xl font-medium gradient-text-warm tabular-nums">
-                      {pack.credits}
+                      {credits}
                     </div>
                     <div className="text-xs uppercase tracking-wider text-muted-foreground mt-1">
                       {t(pack.labelKey as "packStarter" | "packMedium" | "packLarge")}
                     </div>
                     <div className="mt-3 text-2xl font-medium tabular-nums">
-                      {(pack.credits * 0.4)
-                        .toFixed(2)
-                        .replace(".", locale === "fr" || locale === "es" ? "," : ".")}{" "}
-                      €
+                      {priceStr} €
                     </div>
                     <Button
-                      onClick={() => buyCredits(pack.id, pack.credits)}
+                      onClick={() => buyCredits(pack.id, credits)}
                       disabled={buying === pack.id}
                       className={`w-full mt-4 h-10 rounded-lg text-sm font-medium ${
                         pack.id === "medium"
@@ -306,7 +342,8 @@ export function Dashboard() {
                     </Button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
             <p className="mt-4 text-xs text-muted-foreground inline-flex items-center gap-1.5">
               <AlertCircle className="size-3.5" />

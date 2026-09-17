@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import type { Stats, Setting, AdminUser, Tab } from "./admin-dashboard";
 
-type TFunc = (key: string, params?: Record<string, unknown>) => string;
+type TFunc = (key: string, params?: Record<string, string | number | Date>) => string;
 
 export function StatsTab({
   stats,
