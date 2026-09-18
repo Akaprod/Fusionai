@@ -214,36 +214,46 @@ export async function POST(req: NextRequest) {
     }
 
     // --- Check auth + credits BEFORE calling the API ---
+    // Authentication required — block anonymous merges to prevent credit abuse
     const session = await getServerSession(authOptions);
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Vous devez être connecté pour utiliser la fusion.",
+          code: "AUTH_REQUIRED",
+        },
+        { status: 401 }
+      );
+    }
+
     let userId: string | null = null;
     let chargedUser = false;
     let balanceAfter: number | null = null;
 
-    if (session?.user?.email) {
-      const user = await db.user.findUnique({
-        where: { email: session.user.email },
-        select: { id: true, credits: true },
-      });
-      if (!user) {
-        return NextResponse.json(
-          { success: false, error: "Utilisateur introuvable." },
-          { status: 404 }
-        );
-      }
-      if (user.credits < CREDITS_PER_MERGE) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: "Crédits insuffisants. Achetez-en plus pour continuer.",
-            code: "INSUFFICIENT_CREDITS",
-            credits: user.credits,
-            required: CREDITS_PER_MERGE,
-          },
-          { status: 402 }
-        );
-      }
-      userId = user.id;
+    const user = await db.user.findUnique({
+      where: { email: session.user.email },
+      select: { id: true, credits: true },
+    });
+    if (!user) {
+      return NextResponse.json(
+        { success: false, error: "Utilisateur introuvable." },
+        { status: 404 }
+      );
     }
+    if (user.credits < CREDITS_PER_MERGE) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Crédits insuffisants. Achetez-en plus pour continuer.",
+          code: "INSUFFICIENT_CREDITS",
+          credits: user.credits,
+          required: CREDITS_PER_MERGE,
+        },
+        { status: 402 }
+      );
+    }
+    userId = user.id;
 
     // --- Resolve output size ---
     const finalSize =

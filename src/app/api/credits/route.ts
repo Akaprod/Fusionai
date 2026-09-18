@@ -64,6 +64,9 @@ export async function GET() {
 }
 
 // POST /api/credits — buy credits (mock: just adds credits, no payment)
+// Blocked until payment integration is ready (set CREDITS_PURCHASE_ENABLED=true to enable)
+const CREDITS_PURCHASE_ENABLED = process.env.CREDITS_PURCHASE_ENABLED === "true";
+
 interface BuyBody {
   amount?: number;
   pack?: "starter" | "medium" | "large";
@@ -83,6 +86,19 @@ export async function POST(req: NextRequest) {
       { status: 401 }
     );
   }
+
+  // Block purchases until payment integration is ready
+  if (!CREDITS_PURCHASE_ENABLED) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "L'achat de crédits est temporairement désactivé. Le système de paiement est en cours d'intégration.",
+        code: "PURCHASE_DISABLED",
+      },
+      { status: 403 }
+    );
+  }
+
   const body = (await req.json()) as BuyBody;
   const amount =
     body.amount && body.amount > 0

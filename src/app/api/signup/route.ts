@@ -12,7 +12,22 @@ interface SignupBody {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Toggle signup via env var (set SIGNUP_ENABLED=false on Hostinger to block registrations)
+const SIGNUP_ENABLED = process.env.SIGNUP_ENABLED !== "false";
+
 export async function POST(req: NextRequest) {
+  // Block registrations if disabled
+  if (!SIGNUP_ENABLED) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: "Les inscriptions sont temporairement désactivées. Le service est en version bêta. Revenez bientôt !",
+        code: "SIGNUP_DISABLED",
+      },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = (await req.json()) as SignupBody;
     const email = body.email?.toLowerCase().trim();
