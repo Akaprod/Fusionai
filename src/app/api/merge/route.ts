@@ -12,12 +12,16 @@ interface MergeBody {
   size?: string;
 }
 
-// OpenRouter configuration — user's API key (set OPENROUTER_API_KEY in Hostinger env vars)
-// Primary and fallback models (NEVER use other models)
+// OpenRouter configuration — Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)
+// Cheapest image+image→image model on OpenRouter:
+//   $0.25/M input tokens, $1.50/M output text tokens, $30/M image output tokens
+//   → ~$0.034 per generated image (1K resolution = 1290 tokens)
+//   → 3-4× faster than Gemini 2.5 Flash Image (5s vs 19s)
+//   → Takes source images into account (preserves faces, identities, labels)
+// NEVER use another model without explicit user authorization.
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
-const PRIMARY_MODEL = "meta/muse-image";
-const FALLBACK_MODEL = "black-forest-labs/flux.2-klein-4b";
+const MERGE_MODEL = "google/gemini-3.1-flash-lite-image";
 
 const SUPPORTED_SIZES = new Set([
   "1024x1024",
@@ -52,46 +56,54 @@ function pickValidImages(images: string[]): string[] {
 }
 
 /**
- * Build a focused, high-quality prompt for image generation.
- * Since OpenRouter image generation is text-to-image (no reference image input),
- * we describe the desired result based on the user's prompt.
+ * Build the prompt for Nano Banana 2 Lite.
+ * The model accepts an instruction + image input, so we keep the user's intent
+ * + a quality directive. Source images are passed as image_url content parts.
  */
 function buildPrompt(prompt: string, imageCount: number): string {
   const cleanPrompt = prompt.trim().replace(/\s+/g, " ");
   const qualityDirective =
     "Photorealistic result, single coherent photograph, natural lighting, realistic shadows, depth of field, no visible seams or artifacts, high detail, 4k quality.";
-
-  return `${cleanPrompt}. ${qualityDirective}`;
+  const preserveDirective =
+    imageCount > 1
+      ? " Preserve the identity of faces, the exact text of any labels or logos, and the proportions of the subjects."
+      : " Preserve the identity of the subject.";
+  return `${cleanPrompt}.${preserveDirective} ${qualityDirective}`;
 }
 
 /**
- * Call OpenRouter image generation API.
+ * Call OpenRouter chat/completions with image input → image output.
+ * Uses Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image).
  * Returns base64 image data (without the data: prefix).
  */
-async function callOpenRouterImageGen(
+async function callNanoBanana2Lite(
   prompt: string,
-  model: string,
-  size: string
-): Promise<{ base64?: string; url?: string; error?: string }> {
+  images: string[]
+): Promise<{ base64?: string; error?: string; raw?: unknown }> {
   if (!OPENROUTER_API_KEY) {
     return { error: "OPENROUTER_API_KEY env var not set" };
   }
 
-  const body: Record<string, unknown> = {
-    model,
-    prompt,
-    n: 1,
-    response_format: "b64_json",
-    size,
-  };
+  // Build message content: text prompt + all source images
+  const content: Array<
+    | { type: "text"; text: string }
+    | { type: "image_url"; image_url: { url: string } }
+  > = [{ type: "text", text: prompt }];
 
-  console.log(`[merge] calling OpenRouter model=${model} size=${size}`);
+  for (const img of images) {
+    content.push({
+      type: "image_url",
+      image_url: { url: img },
+    });
+  }
 
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 100000); // 100s timeout
+  console.log(
+    `[merge] calling Nano Banana 2 Lite model=${MERGE_MODEL} images=${images.length} prompt_len=${prompt.length}`
+  );
 
+  const start = Date.now();
   try {
-    const res = await fetch(`${OPENROUTER_BASE}/images/generations`, {
+    const res = await fetch(`${OPENROUTER_BASE}/chat/completions`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -99,49 +111,77 @@ async function callOpenRouterImageGen(
         "HTTP-Referer": "https://allcombiner.online",
         "X-Title": "Fusionia Image Combiner",
       },
-      body: JSON.stringify(body),
-      signal: controller.signal,
+      body: JSON.stringify({
+        model: MERGE_MODEL,
+        messages: [{ role: "user", content }],
+      }),
+      signal: AbortSignal.timeout(100000),
     });
 
-    clearTimeout(timeout);
+    const durationMs = Date.now() - start;
+    console.log(`[merge] response HTTP ${res.status} in ${durationMs}ms`);
 
     if (!res.ok) {
       const errText = await res.text();
-      console.error(`[merge] OpenRouter ${model} HTTP ${res.status}:`, errText.substring(0, 300));
+      console.error(`[merge] HTTP ${res.status}:`, errText.substring(0, 300));
       return { error: `HTTP ${res.status}: ${errText.substring(0, 200)}` };
     }
 
     const data = await res.json();
-    const item = data?.data?.[0];
-    if (!item) {
-      return { error: "No data in response" };
+    const message = data?.choices?.[0]?.message;
+    if (!message) {
+      return { error: "No message in response", raw: data };
     }
 
-    if (item.b64_json) {
-      return { base64: item.b64_json };
+    // The response content can be:
+    // - an array of items with type "text" or "image_url" (structured)
+    // - a string (older format, may contain markdown with image URL)
+    const content = message.content;
+    if (Array.isArray(content)) {
+      for (const item of content) {
+        if (item.type === "image_url" && item.image_url?.url) {
+          const url = item.image_url.url;
+          if (url.startsWith("data:")) {
+            const base64 = url.split(",", 2)[1];
+            return { base64 };
+          }
+          // Remote URL — fetch and convert to base64
+          console.log("[merge] fetching remote image URL:", url.substring(0, 80));
+          const imgRes = await fetch(url);
+          if (!imgRes.ok) {
+            return { error: `Failed to fetch image URL: HTTP ${imgRes.status}` };
+          }
+          const buf = Buffer.from(await imgRes.arrayBuffer());
+          return { base64: buf.toString("base64") };
+        }
+      }
+      return { error: "No image_url in response content array", raw: content };
     }
-    if (item.url) {
-      return { url: item.url };
+
+    // Fallback: string content
+    if (typeof content === "string") {
+      const dataMatch = content.match(/data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+)/);
+      if (dataMatch) {
+        return { base64: dataMatch[1] };
+      }
+      const urlMatch = content.match(/https?:\/\/[^\s)"']+\.(?:png|jpg|jpeg|webp)/i);
+      if (urlMatch) {
+        console.log("[merge] found image URL in text content");
+        const imgRes = await fetch(urlMatch[0]);
+        if (imgRes.ok) {
+          const buf = Buffer.from(await imgRes.arrayBuffer());
+          return { base64: buf.toString("base64") };
+        }
+      }
+      return { error: "No image in string content", raw: content.substring(0, 200) };
     }
-    return { error: "No image in response" };
+
+    return { error: "Unrecognized response format", raw: typeof content };
   } catch (err) {
-    clearTimeout(timeout);
     const msg = err instanceof Error ? err.message : String(err);
-    console.error(`[merge] OpenRouter ${model} error:`, msg);
+    console.error(`[merge] error:`, msg);
     return { error: msg };
   }
-}
-
-/**
- * If OpenRouter returns a URL, fetch the image and convert to base64.
- */
-async function urlToBase64(url: string): Promise<string> {
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`Failed to fetch image URL: HTTP ${res.status}`);
-  }
-  const buf = Buffer.from(await res.arrayBuffer());
-  return buf.toString("base64");
 }
 
 export async function POST(req: NextRequest) {
@@ -214,20 +254,14 @@ export async function POST(req: NextRequest) {
     const composedPrompt = buildPrompt(prompt, validImages.length);
 
     console.log(
-      `[merge] user=${session?.user?.email || "anon"} images=${validImages.length} size=${finalSize} prompt_len=${composedPrompt.length}`
+      `[merge] user=${session?.user?.email || "anon"} images=${validImages.length} size=${finalSize}`
     );
 
-    // --- Call OpenRouter — try primary model, then fallback ---
-    let result = await callOpenRouterImageGen(composedPrompt, PRIMARY_MODEL, finalSize);
+    // --- Call Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image) ---
+    const result = await callNanoBanana2Lite(composedPrompt, validImages);
 
-    // If primary failed, try fallback
-    if (result.error) {
-      console.log(`[merge] primary model failed (${result.error.substring(0, 80)}), trying fallback ${FALLBACK_MODEL}`);
-      result = await callOpenRouterImageGen(composedPrompt, FALLBACK_MODEL, finalSize);
-    }
-
-    if (result.error) {
-      console.error("[merge] both models failed");
+    if (result.error || !result.base64) {
+      console.error("[merge] failed:", result.error);
       return NextResponse.json(
         {
           success: false,
@@ -239,21 +273,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // --- Convert to base64 data URL ---
-    let base64: string;
-    if (result.base64) {
-      base64 = result.base64;
-    } else if (result.url) {
-      console.log("[merge] fetching image URL from OpenRouter");
-      base64 = await urlToBase64(result.url);
-    } else {
-      return NextResponse.json(
-        { success: false, error: "Aucune image retournée par le modèle." },
-        { status: 502 }
-      );
-    }
-
-    const dataUrl = `data:image/png;base64,${base64}`;
+    const dataUrl = `data:image/png;base64,${result.base64}`;
     const durationMs = Date.now() - startedAt;
 
     // --- Charge user + log merge ---
@@ -305,6 +325,7 @@ export async function POST(req: NextRequest) {
       balanceAfter,
       durationMs,
       imageCount: validImages.length,
+      model: MERGE_MODEL,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Erreur inconnue";
