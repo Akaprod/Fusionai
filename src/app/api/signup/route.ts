@@ -12,11 +12,12 @@ interface SignupBody {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Toggle signup via env var (set SIGNUP_ENABLED=false on Hostinger to block registrations)
-const SIGNUP_ENABLED = process.env.SIGNUP_ENABLED !== "false";
+// Toggle signup via env var (set SIGNUP_ENABLED=true on Hostinger to ENABLE registrations)
+// DEFAULT: blocked (false) for security — must explicitly enable
+const SIGNUP_ENABLED = process.env.SIGNUP_ENABLED === "true";
 
 export async function POST(req: NextRequest) {
-  // Block registrations if disabled
+  // Block registrations if disabled (default behavior)
   if (!SIGNUP_ENABLED) {
     return NextResponse.json(
       {
