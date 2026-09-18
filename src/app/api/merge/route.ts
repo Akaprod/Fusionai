@@ -136,9 +136,9 @@ async function callNanoBanana2Lite(
     // The response content can be:
     // - an array of items with type "text" or "image_url" (structured)
     // - a string (older format, may contain markdown with image URL)
-    const content = message.content;
-    if (Array.isArray(content)) {
-      for (const item of content) {
+    const responseContent = message.content;
+    if (Array.isArray(responseContent)) {
+      for (const item of responseContent) {
         if (item.type === "image_url" && item.image_url?.url) {
           const url = item.image_url.url;
           if (url.startsWith("data:")) {
@@ -155,16 +155,16 @@ async function callNanoBanana2Lite(
           return { base64: buf.toString("base64") };
         }
       }
-      return { error: "No image_url in response content array", raw: content };
+      return { error: "No image_url in response content array", raw: responseContent };
     }
 
     // Fallback: string content
-    if (typeof content === "string") {
-      const dataMatch = content.match(/data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+)/);
+    if (typeof responseContent === "string") {
+      const dataMatch = responseContent.match(/data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+)/);
       if (dataMatch) {
         return { base64: dataMatch[1] };
       }
-      const urlMatch = content.match(/https?:\/\/[^\s)"']+\.(?:png|jpg|jpeg|webp)/i);
+      const urlMatch = responseContent.match(/https?:\/\/[^\s)"']+\.(?:png|jpg|jpeg|webp)/i);
       if (urlMatch) {
         console.log("[merge] found image URL in text content");
         const imgRes = await fetch(urlMatch[0]);
@@ -173,10 +173,10 @@ async function callNanoBanana2Lite(
           return { base64: buf.toString("base64") };
         }
       }
-      return { error: "No image in string content", raw: content.substring(0, 200) };
+      return { error: "No image in string content", raw: responseContent.substring(0, 200) };
     }
 
-    return { error: "Unrecognized response format", raw: typeof content };
+    return { error: "Unrecognized response format", raw: typeof responseContent };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[merge] error:`, msg);
