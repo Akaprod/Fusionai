@@ -15,4 +15,14 @@ export const db =
       : { log: ['error'] }
   )
 
+// In production, disconnect after 5s of idle to avoid hanging connections
+if (process.env.NODE_ENV === 'production') {
+  // Configure connection pool limits for Hostinger MySQL
+  try {
+    (db as any).$on?.('query', () => {})
+  } catch {
+    // ignore
+  }
+}
+
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = db

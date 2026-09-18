@@ -53,18 +53,24 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
+        token.id = (user as { id?: string }).id;
       }
-      // Always refresh credits from DB so the token stays fresh
+      // Refresh user info from DB (but only if we have an email)
       if (token.email) {
-        const dbUser = await db.user.findUnique({
-          where: { email: token.email },
-          select: { id: true, credits: true, plan: true },
-        });
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.credits = dbUser.credits;
-          token.plan = dbUser.plan;
+        try {
+          const dbUser = await db.user.findUnique({
+            where: { email: token.email as string },
+            select: { id: true, credits: true, plan: true, role: true },
+          });
+          if (dbUser) {
+            token.id = dbUser.id;
+            token.credits = dbUser.credits;
+            token.plan = dbUser.plan;
+            token.role = dbUser.role;
+          }
+        } catch (err) {
+          // Don't crash the auth flow if DB is slow/unavailable
+          console.error('[auth] jwt callback DB error:', err instanceof Error ? err.message : String(err));
         }
       }
       return token;
