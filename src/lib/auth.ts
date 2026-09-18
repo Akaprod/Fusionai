@@ -52,27 +52,30 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
+      // Only query DB when user first signs in (user object is present)
+      // On subsequent calls, just return the existing token — no DB query
       if (user) {
-        token.id = (user as { id?: string }).id;
-      }
-      // Refresh user info from DB (but only if we have an email)
-      if (token.email) {
-        try {
-          const dbUser = await db.user.findUnique({
-            where: { email: token.email as string },
-            select: { id: true, credits: true, plan: true, role: true },
-          });
-          if (dbUser) {
-            token.id = dbUser.id;
-            token.credits = dbUser.credits;
-            token.plan = dbUser.plan;
-            token.role = dbUser.role;
+        const id = (user as { id?: string }).id;
+        if (id) {
+          token.id = id;
+          // Fetch user data once at sign-in
+          try {
+            const dbUser = await db.user.findUnique({
+              where: { id },
+              select: { credits: true, plan: true, role: true, email: true },
+            });
+            if (dbUser) {
+              token.credits = dbUser.credits;
+              token.plan = dbUser.plan;
+              token.role = dbUser.role;
+              token.email = dbUser.email;
+            }
+          } catch (err) {
+            console.error('[auth] jwt sign-in DB error:', err instanceof Error ? err.message : String(err));
           }
-        } catch (err) {
-          // Don't crash the auth flow if DB is slow/unavailable
-          console.error('[auth] jwt callback DB error:', err instanceof Error ? err.message : String(err));
         }
       }
+      // Return token WITHOUT DB query on subsequent calls
       return token;
     },
     async session({ session, token }) {
