@@ -12,16 +12,15 @@ interface MergeBody {
   size?: string;
 }
 
-// OpenRouter configuration — Nano Banana 2 Lite (Gemini 3.1 Flash Lite Image)
-// Cheapest image+image→image model on OpenRouter:
-//   $0.25/M input tokens, $1.50/M output text tokens, $30/M image output tokens
-//   → ~$0.034 per generated image (1K resolution = 1290 tokens)
-//   → 3-4× faster than Gemini 2.5 Flash Image (5s vs 19s)
+// OpenRouter configuration — Nano Banana 2 (Gemini 3.1 Flash Image Preview)
+// Middle-ground: better quality than Lite, cheaper than Pro
+//   $0.25/M input tokens, $30/M image output tokens
+//   → ~$0.067 per generated image (1K resolution = 1290 tokens)
 //   → Takes source images into account (preserves faces, identities, labels)
 // NEVER use another model without explicit user authorization.
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY || "";
 const OPENROUTER_BASE = "https://openrouter.ai/api/v1";
-const MERGE_MODEL = "google/gemini-3.1-flash-lite-image";
+const MERGE_MODEL = "google/gemini-3.1-flash-image-preview";
 
 const SUPPORTED_SIZES = new Set([
   "1024x1024",
