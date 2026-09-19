@@ -265,18 +265,18 @@ export async function GET() {
 
   const results: unknown[] = [];
 
-  // Test 1: text_only — baseline
-  try {
-    results.push(
-      await diag("text_only", [
-        { type: "text", text: "Say 'hello' in one word." },
-      ])
-    );
-  } catch (err) {
-    results.push({ test: "text_only", error: err instanceof Error ? err.message : String(err) });
-  }
+  // Test 1: text_only — DISABLED to avoid timeout (was OK before)
+  // try {
+  //   results.push(
+  //     await diag("text_only", [
+  //       { type: "text", text: "Say 'hello' in one word." },
+  //     ])
+  //   );
+  // } catch (err) {
+  //   results.push({ test: "text_only", error: err instanceof Error ? err.message : String(err) });
+  // }
 
-  // Test 2: single_image — one REAL PNG
+  // Test 2: single_image — one REAL PNG (only this test to avoid timeout)
   try {
     results.push(
       await diag("single_image", [
@@ -288,18 +288,18 @@ export async function GET() {
     results.push({ test: "single_image", error: err instanceof Error ? err.message : String(err) });
   }
 
-  // Test 3: two_images — merge scenario with 2 REAL PNGs
-  try {
-    results.push(
-      await diag("two_images", [
-        { type: "text", text: "Place the person from image 1 in the scene from image 2. Photorealistic, preserve the face exactly." },
-        { type: "image_url", image_url: { url: img1Url } },
-        { type: "image_url", image_url: { url: img2Url } },
-      ])
-    );
-  } catch (err) {
-    results.push({ test: "two_images", error: err instanceof Error ? err.message : String(err) });
-  }
+  // Test 3: two_images — DISABLED to avoid timeout
+  // try {
+  //   results.push(
+  //     await diag("two_images", [
+  //       { type: "text", text: "Place the person from image 1 in the scene from image 2. Photorealistic, preserve the face exactly." },
+  //       { type: "image_url", image_url: { url: img1Url } },
+  //       { type: "image_url", image_url: { url: img2Url } },
+  //     ])
+  //   );
+  // } catch (err) {
+  //   results.push({ test: "two_images", error: err instanceof Error ? err.message : String(err) });
+  // }
 
   return NextResponse.json({
     timestamp: new Date().toISOString(),
