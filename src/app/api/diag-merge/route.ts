@@ -131,17 +131,43 @@ async function diag(label: string, content: unknown[]) {
   let hasImage = false;
   let imageLen = 0;
   let imagePrefix = "";
+  let messageKeys: string[] = [];
+  let contentItems: unknown[] = [];
   const data = responseData as { choices?: { message?: { content?: unknown } }[] };
-  const c = data?.choices?.[0]?.message?.content;
-  if (Array.isArray(c)) {
-    for (const item of c as { type?: string; image_url?: { url?: string } }[]) {
-      if (item.type === "image_url" && item.image_url?.url) {
-        hasImage = true;
-        imageLen = item.image_url.url.length;
-        imagePrefix = item.image_url.url.substring(0, 80);
+  const msg = data?.choices?.[0]?.message as Record<string, unknown> | undefined;
+  if (msg) {
+    messageKeys = Object.keys(msg);
+    const c = msg.content;
+    if (Array.isArray(c)) {
+      for (const item of c as { type?: string; image_url?: { url?: string } }[]) {
+        contentItems.push({
+          type: item.type,
+          hasImageUrl: !!item.image_url?.url,
+          urlLength: item.image_url?.url?.length || 0,
+        });
+        if (item.type === "image_url" && item.image_url?.url) {
+          hasImage = true;
+          imageLen = item.image_url.url.length;
+          imagePrefix = item.image_url.url.substring(0, 80);
+        }
       }
+    } else if (typeof c === "string") {
+      contentItems.push({ type: "string", length: c.length, preview: c.substring(0, 200) });
+      // Check if string contains a data URL
+      const dataMatch = c.match(/data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+)/);
+      if (dataMatch) {
+        hasImage = true;
+        imageLen = dataMatch[1].length;
+        imagePrefix = dataMatch[0].substring(0, 80);
+      }
+    } else if (c === null) {
+      contentItems.push({ type: "null" });
     }
   }
+
+  // Also check for 'images' field at top level (some models return images separately)
+  const topKeys = Object.keys(data);
+  const imagesField = (data as Record<string, unknown>).images;
 
   return {
     test: label,
@@ -151,6 +177,11 @@ async function diag(label: string, content: unknown[]) {
     has_image: hasImage,
     image_length: imageLen,
     image_prefix: imagePrefix,
+    message_keys: messageKeys,
+    content_items: contentItems,
+    top_level_keys: topKeys,
+    has_images_field: !!imagesField,
+    images_field_type: imagesField ? typeof imagesField : null,
     timings_ms: {
       body_built: (steps[1].ms - t0),
       fetch_done: (steps[2].ms - t0),
@@ -161,8 +192,8 @@ async function diag(label: string, content: unknown[]) {
     },
     response_preview:
       typeof responseData === "string"
-        ? responseData
-        : JSON.stringify(responseData).substring(0, 800),
+        ? responseData.substring(0, 400)
+        : JSON.stringify(responseData).substring(0, 400),
   };
 }
 
