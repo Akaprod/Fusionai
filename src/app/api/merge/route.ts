@@ -132,12 +132,12 @@ async function callNanoBanana2Lite(
       return { error: "No message in response", raw: data };
     }
 
-    // The response content can be:
-    // - an array of items with type "text" or "image_url" (structured)
-    // - a string (older format, may contain markdown with image URL)
-    const responseContent = message.content;
-    if (Array.isArray(responseContent)) {
-      for (const item of responseContent) {
+    // The model returns the generated image in the 'images' field (not in 'content').
+    // Format: message.images = [{ type: "image_url", image_url: { url: "data:..." } }]
+    // The 'content' field contains either a text description or null.
+    const imagesField = (message as Record<string, unknown>).images;
+    if (Array.isArray(imagesField)) {
+      for (const item of imagesField as { type?: string; image_url?: { url?: string } }[]) {
         if (item.type === "image_url" && item.image_url?.url) {
           const url = item.image_url.url;
           if (url.startsWith("data:")) {
@@ -154,10 +154,30 @@ async function callNanoBanana2Lite(
           return { base64: buf.toString("base64") };
         }
       }
-      return { error: "No image_url in response content array", raw: responseContent };
     }
 
-    // Fallback: string content
+    // Fallback 1: check content array for image_url (older format)
+    const responseContent = message.content;
+    if (Array.isArray(responseContent)) {
+      for (const item of responseContent) {
+        if (item.type === "image_url" && item.image_url?.url) {
+          const url = item.image_url.url;
+          if (url.startsWith("data:")) {
+            const base64 = url.split(",", 2)[1];
+            return { base64 };
+          }
+          console.log("[merge] fetching remote image URL:", url.substring(0, 80));
+          const imgRes = await fetch(url);
+          if (!imgRes.ok) {
+            return { error: `Failed to fetch image URL: HTTP ${imgRes.status}` };
+          }
+          const buf = Buffer.from(await imgRes.arrayBuffer());
+          return { base64: buf.toString("base64") };
+        }
+      }
+    }
+
+    // Fallback 2: string content with data URL or markdown image URL
     if (typeof responseContent === "string") {
       const dataMatch = responseContent.match(/data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+)/);
       if (dataMatch) {
@@ -175,7 +195,15 @@ async function callNanoBanana2Lite(
       return { error: "No image in string content", raw: responseContent.substring(0, 200) };
     }
 
-    return { error: "Unrecognized response format", raw: typeof responseContent };
+    return {
+      error: "No image found in response (checked images field + content)",
+      raw: {
+        messageKeys: Object.keys(message),
+        hasImagesField: !!imagesField,
+        imagesFieldType: imagesField ? typeof imagesField : null,
+        contentType: typeof responseContent,
+      },
+    };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error(`[merge] error:`, msg);
