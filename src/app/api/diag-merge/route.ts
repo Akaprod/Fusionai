@@ -133,8 +133,9 @@ async function diag(label: string, content: unknown[]) {
   let imagePrefix = "";
   let messageKeys: string[] = [];
   let contentItems: unknown[] = [];
-  const data = responseData as { choices?: { message?: { content?: unknown } }[] };
-  const msg = data?.choices?.[0]?.message as Record<string, unknown> | undefined;
+  let imagesFieldInfo: unknown = null;
+  const data = responseData as { choices?: { message?: Record<string, unknown> }[] };
+  const msg = data?.choices?.[0]?.message;
   if (msg) {
     messageKeys = Object.keys(msg);
     const c = msg.content;
@@ -153,21 +154,62 @@ async function diag(label: string, content: unknown[]) {
       }
     } else if (typeof c === "string") {
       contentItems.push({ type: "string", length: c.length, preview: c.substring(0, 200) });
-      // Check if string contains a data URL
-      const dataMatch = c.match(/data:image\/[a-z]+;base64,([A-Za-z0-9+/=]+)/);
-      if (dataMatch) {
-        hasImage = true;
-        imageLen = dataMatch[1].length;
-        imagePrefix = dataMatch[0].substring(0, 80);
-      }
     } else if (c === null) {
       contentItems.push({ type: "null" });
     }
+
+    // Inspect the images field structure
+    const imagesField = msg.images;
+    if (Array.isArray(imagesField)) {
+      imagesFieldInfo = [];
+      for (const item of imagesField as Record<string, unknown>[]) {
+        const itemInfo: Record<string, unknown> = { keys: Object.keys(item) };
+        for (const [k, v] of Object.entries(item)) {
+          if (typeof v === "string") {
+            if (v.length > 100) {
+              itemInfo[k + "_len"] = v.length;
+              itemInfo[k + "_prefix"] = v.substring(0, 80);
+              // Check if it's a data URL
+              if (v.startsWith("data:image")) {
+                hasImage = true;
+                imageLen = v.length;
+                imagePrefix = v.substring(0, 80);
+              }
+            } else {
+              itemInfo[k] = v;
+            }
+          } else if (typeof v === "object" && v !== null) {
+            const nested = v as Record<string, unknown>;
+            itemInfo[k + "_keys"] = Object.keys(nested);
+            for (const [nk, nv] of Object.entries(nested)) {
+              if (typeof nv === "string") {
+                if (nv.length > 100) {
+                  itemInfo[k + "." + nk + "_len"] = nv.length;
+                  itemInfo[k + "." + nk + "_prefix"] = nv.substring(0, 80);
+                  if (nv.startsWith("data:image")) {
+                    hasImage = true;
+                    imageLen = nv.length;
+                    imagePrefix = nv.substring(0, 80);
+                  }
+                } else {
+                  itemInfo[k + "." + nk] = nv;
+                }
+              }
+            }
+          } else {
+            itemInfo[k] = v;
+          }
+        }
+        (imagesFieldInfo as unknown[]).push(itemInfo);
+      }
+    } else if (imagesField !== undefined && imagesField !== null) {
+      imagesFieldInfo = { type: typeof imagesField, value: String(imagesField).substring(0, 200) };
+    }
   }
 
-  // Also check for 'images' field at top level (some models return images separately)
+  // Also check for 'images' field at top level
   const topKeys = Object.keys(data);
-  const imagesField = (data as Record<string, unknown>).images;
+  const topLevelImages = (data as Record<string, unknown>).images;
 
   return {
     test: label,
@@ -179,9 +221,10 @@ async function diag(label: string, content: unknown[]) {
     image_prefix: imagePrefix,
     message_keys: messageKeys,
     content_items: contentItems,
+    images_field_info: imagesFieldInfo,
     top_level_keys: topKeys,
-    has_images_field: !!imagesField,
-    images_field_type: imagesField ? typeof imagesField : null,
+    has_top_level_images: !!topLevelImages,
+    top_level_images_type: topLevelImages ? typeof topLevelImages : null,
     timings_ms: {
       body_built: (steps[1].ms - t0),
       fetch_done: (steps[2].ms - t0),
